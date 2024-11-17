@@ -47,6 +47,7 @@ def check_health(endpoint):
         latency = (time.time() - start_time) * 1000  # Convert to milliseconds
 
         if 200 <= response.status_code < 300 and latency < 500:
+            logging.info(f"Endpoint {url} is UP. Status Code: {response.status_code}, Latency: {latency:.2f}ms")
             return "UP", latency
         else:
             logging.warning(f"Endpoint {url} is DOWN. Status Code: {response.status_code}, Latency: {latency}ms")
