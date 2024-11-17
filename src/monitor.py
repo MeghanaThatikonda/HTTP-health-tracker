@@ -2,11 +2,29 @@ import sys
 import yaml
 import requests
 import time
+import logging
+
+# Setting up logging configuration
+logging.basicConfig(
+    level=logging.INFO, 
+    format='%(asctime)s - %(message)s', 
+    handlers=[
+        logging.StreamHandler(),  # Print to console
+        logging.FileHandler('log/monitor_log.txt')  # Log to file
+    ]
+)
 
 # function to load the input YAML file
 def read_file(file_path):
-    with open(file_path, 'r') as file:
-        return yaml.safe_load(file)
+    try:
+        with open(file_path, 'r') as file:
+            return yaml.safe_load(file)
+    except FileNotFoundError:
+        logging.error(f"Error: File {file_path} not found.")
+        sys.exit(1)
+    except yaml.YAMLError as e:
+        logging.error(f"Error parsing YAML file: {e}")
+        sys.exit(1)
 
 # checks the health of a single HTTP endpoint
 def check_health(endpoint):
@@ -31,11 +49,12 @@ def check_health(endpoint):
         if 200 <= response.status_code < 300 and latency < 500:
             return "UP", latency
         else:
+            logging.warning(f"Endpoint {url} is DOWN. Status Code: {response.status_code}, Latency: {latency}ms")
             return "DOWN", latency
 
     except requests.RequestException as e:
-        # If any exception occurs (e.g., connection error, timeout), treat it as DOWN
-        print(f"Error checking {url}: {e}")
+        # Log the error and return DOWN
+        logging.error(f"Error checking {url}: {e}")
         return "DOWN", None
 
 # Monitors the health of endpoints periodically (every 15 seconds)
@@ -70,6 +89,7 @@ def monitor_endpoints(config):
         for domain in domain_status:
             availability = (domain_status[domain] / domain_checks[domain]) * 100
             print(f"{domain} has {round(availability)}% availability")
+            logging.info(f"{domain} has {round(availability)}% availability")
 
         # Wait for 15 seconds before the next cycle
         time.sleep(15)
@@ -78,14 +98,10 @@ if __name__ == "__main__":
     # checking if the input YAML file is passed in arguments
     if(len(sys.argv) != 2):
         print("Usage: python monitor.py <configuration_file_path>")
+        logging.error("Usage: python monitor.py <configuration_file_path>")
         sys.exit(1)
     config_file = sys.argv[1]
     # Reading the config YAML file
-    try:
-        config = read_file(config_file)
-        # Checking health of endpoints every 15 secs
-        monitor_endpoints(config)
-    except FileNotFoundError:
-        print(f"Error: File {config_file} not found.")
-    except yaml.YAMLError as e:
-        print(f"Error parsing YAML file: {e}")
+    config = read_file(config_file)
+    # Checking health of endpoints every 15 secs
+    monitor_endpoints(config)
