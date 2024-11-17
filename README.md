@@ -22,14 +22,18 @@ Clone the Repository:
 git clone https://github.com/MeghanaThatikonda/HTTP-health-tracker.git
 cd HTTP-health-tracker
 ```
-
-2. Prepare Configuration: 
+2. Requirements
+To install the required dependencies, run the following command:
+```
+pip install -r requirements.txt
+```
+3. Prepare Configuration: 
 Place your YAML configuration file in the input/ directory for better structure. Alternatively, you can directly pass the file path to the script. This file should specify the endpoints to monitor. 
 
-3. Run the Monitor: Execute the monitoring script:
+4. Run the Monitor: Execute the monitoring script:
 ```
 python src/monitor.py <path_to_config_file>
 ```
 Example: python src/monitor.py input/config.yaml
 
-4. Check Logs: Monitor logs will be written to log/monitor_log.txt. Status messages will also appear in the console.
+5. Check Logs: Monitor logs will be written to log/monitor_log.txt. Status messages will also appear in the console.
