@@ -97,7 +97,7 @@ def monitor_endpoints(config):
 
 if __name__ == "__main__":
     # checking if the input YAML file is passed in arguments
-    if(len(sys.argv) != 2):
+    if len(sys.argv) != 2:
         print("Usage: python monitor.py <configuration_file_path>")
         logging.error("Usage: python monitor.py <configuration_file_path>")
         sys.exit(1)
